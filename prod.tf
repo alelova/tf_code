@@ -13,7 +13,7 @@ resource "aws_subnet" "Public101" {
   cidr_block = "172.31.101.0/24"
 
   tags = {
-    Name = "Public101 Subnet"
+    Name = "Public101"
     "Terraform" = "true"
   }
 }
@@ -45,4 +45,16 @@ tags = {
   }
 }
 
+resource "aws_instance" "prod_web" {
+  ami           = "ami-0245697ee3e07e755"
+  instance_type = "t2.nano"
+
+  subnet_id     = aws_subnet.Public101.id
+  vpc_security_group_ids = [aws_security_group.prod_web.id]
+
+  tags = { 
+    Name = "prod_web"
+    "Terraform" = "true"
+  }
+}
 
