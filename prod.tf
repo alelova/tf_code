@@ -2,9 +2,6 @@ provider "aws" {
   profile = "default"
   region = "eu-central-1"
 }
-variable "aws_key_pair" {
-  default = "~/Documents/ale/aws/key/amazon_linux_key_1.pem"
-}
 
 resource "aws_s3_bucket" "prod_tf_course" {
   bucket = "tf-course-ln-20220318"
@@ -56,6 +53,7 @@ tags = {
 resource "aws_instance" "prod_web" {
   ami           = "ami-0245697ee3e07e755"
   instance_type = "t2.nano"
+  key_name      = "amazon_linux_key_1"
 
   subnet_id                      = aws_subnet.Public101.id
   associate_public_ip_address    = "true"
