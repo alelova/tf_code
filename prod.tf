@@ -39,6 +39,12 @@ resource "aws_security_group" "prod_web"{
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  ingress {
+    from_port = -1
+    to_port   = -1
+    protocol  = "icmp"
+    cidr_blocks = ["172.31.0.0/16"]
+  }
   egress {
     from_port   = 0
     to_port     = 0
@@ -63,5 +69,15 @@ resource "aws_instance" "prod_web" {
     Name = "prod_web"
     "Terraform" = "true"
   }
+  connection {
+    type        = "ssh"
+    user        = "admin"
+    private_key = "${file("~/Documents/ale/aws/key/amazon_linux_key_1.pem")}"
+    host        = self.public_ip
+  }
+  provisioner "remote-exec" {
+    inline = ["sudo hostnamectl set-hostname prodweb"]
+  }
+
 }
 
