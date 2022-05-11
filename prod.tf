@@ -76,8 +76,16 @@ resource "aws_instance" "prod_web" {
     host        = self.public_ip
   }
   provisioner "remote-exec" {
-    inline = ["sudo hostnamectl set-hostname prodweb"]
+    inline = [
+      "sudo hostnamectl set-hostname prodweb",
+      "echo '127.0.0.1 prodweb' | sudo tee -a /etc/hosts",
+      "echo '172.31.1.33 puppet' | sudo tee -a /etc/hosts",
+      "wget https://apt.puppet.com/puppet7-release-buster.deb",
+      "sudo dpkg -i puppet7-release-buster.deb",
+      "sudo apt-get update",
+      "sudo apt-get install puppet-agent",
+      "sudo /opt/puppetlabs/bin/puppet resource service puppet ensure=running enable=true",
+    ]
   }
-
 }
 
