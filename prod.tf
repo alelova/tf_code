@@ -74,5 +74,5 @@ module "web_app" {
   miaws_key           = var.miaws_key
   security_groups     = [aws_security_group.prod_web.id]
   web_subnet          = aws_subnet.Public101.id
-  web_app             = "prod"
+  web_app             = "prod01"
 }
