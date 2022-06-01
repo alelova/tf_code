@@ -1,3 +1,15 @@
+variable "whitelist" {
+  type = list(string)
+}
+variable "miaws_instance_type" {
+  type    = string
+  default = "t2.nano"
+}
+variable "miaws_key" {
+  type    = string
+  default = "amazon_linux_key_1"
+}
+
 provider "aws" {
   profile = "default"
   region = "eu-central-1"
@@ -31,7 +43,7 @@ resource "aws_security_group" "prod_web"{
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.whitelist
   }
   ingress {
     from_port   = 22
@@ -56,36 +68,11 @@ tags = {
   }
 }
 
-resource "aws_instance" "prod_web" {
-  ami           = "ami-0245697ee3e07e755"
-  instance_type = "t2.nano"
-  key_name      = "amazon_linux_key_1"
-
-  subnet_id                      = aws_subnet.Public101.id
-  associate_public_ip_address    = "true"
-  vpc_security_group_ids         = [aws_security_group.prod_web.id]
-
-  tags = { 
-    Name = "prod_web"
-    "Terraform" = "true"
-  }
-  connection {
-    type        = "ssh"
-    user        = "admin"
-    private_key = "${file("~/Documents/ale/aws/key/amazon_linux_key_1.pem")}"
-    host        = self.public_ip
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "sudo hostnamectl set-hostname prodweb",
-      "echo '127.0.0.1 prodweb' | sudo tee -a /etc/hosts",
-      "echo '172.31.1.33 puppet' | sudo tee -a /etc/hosts",
-      "wget https://apt.puppet.com/puppet7-release-buster.deb",
-      "sudo dpkg -i puppet7-release-buster.deb",
-      "sudo apt-get update",
-      "sudo apt-get install puppet-agent",
-      "sudo /opt/puppetlabs/bin/puppet resource service puppet ensure=running enable=true",
-    ]
-  }
+module "web_app" {
+  source = "./modules/web_app"
+  miaws_instance_type = var.miaws_instance_type
+  miaws_key           = var.miaws_key
+  security_groups     = [aws_security_group.prod_web.id]
+  web_subnet          = aws_subnet.Public101.id
+  web_app             = "prod"
 }
-
