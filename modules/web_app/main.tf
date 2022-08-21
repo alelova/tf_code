@@ -4,7 +4,7 @@ resource "aws_instance" "this" {
   key_name                       = var.miaws_key
   vpc_security_group_ids         = var.security_groups
   subnet_id                      = var.web_subnet
-	  associate_public_ip_address    = "false"
+  associate_public_ip_address    = "true"
 
   tags = { 
     Name = var.web_app
