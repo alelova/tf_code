@@ -1,10 +1,6 @@
 variable "whitelist" {
   type = list(string)
 }
-variable "miaws_instance_type" {
-  type    = string
-  default = "t2.nano"
-}
 variable "miaws_key" {
   type    = string
   default = "amazon_linux_key_1"
@@ -18,6 +14,7 @@ provider "aws" {
 resource "aws_s3_bucket" "prod_tf_course" {
   bucket = "tf-course-ln-20220318"
 }
+
 resource "aws_default_vpc" "default" {}
 
 resource "aws_subnet" "Public101" {
@@ -29,6 +26,7 @@ resource "aws_subnet" "Public101" {
     "Terraform" = "true"
   }
 }
+
 resource "aws_security_group" "prod_web"{
   name = "prod_web"
   description = " allows standard http y https ports inbound"
@@ -68,11 +66,11 @@ tags = {
   }
 }
 
-module "web_app" {
-  source = "./modules/web_app"
-  miaws_instance_type = var.miaws_instance_type
-  miaws_key           = var.miaws_key
-  security_groups     = [aws_security_group.prod_web.id]
-  web_subnet          = aws_subnet.Public101.id
-  web_app             = "prod01"
-}
+# module "web_app" {
+#  source = "./modules/web_app"
+#  miaws_instance_type = var.miaws_instance_type
+#  miaws_key           = var.miaws_key
+#  security_groups     = [aws_security_group.prod_web.id]
+#  web_subnet          = aws_subnet.Public101.id
+#  web_app             = "prod01"
+#}
